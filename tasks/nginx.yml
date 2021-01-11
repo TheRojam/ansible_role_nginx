@@ -2,7 +2,8 @@
 
 - name: Copy main nginx configuration file
   copy:
-    src: 'nginx/nginx.conf'
+    #src: 'nginx/nginx.conf'
+    src: '{{ lookup("hf", "nginx/nginx.conf") }}'
     dest: '/etc/nginx/'
     owner: root
     group: root
