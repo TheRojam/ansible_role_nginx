@@ -1,4 +1,10 @@
 ---
+nginx__packages:
+  - 'nginx'
+
+
+nginx__dhparam_size: 2048
+
 
 nginx_sites: {}
 
@@ -16,12 +22,10 @@ nginx_sites: {}
 #       mode                                Optional, for use with 'webhost' role
 
 
-snippet_files:
+# List of global snippets, independent of the vhost host name
+nginx_snippet_files:
   - 'acmetool.snippet.conf'
   - 'tls_parameters.snippet.conf'
 
 
 #default_robots_file: 'robots_disallow_all.txt'
-
-
-nginx__dhparam_size: 2048

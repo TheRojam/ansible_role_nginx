@@ -2,7 +2,7 @@
 
 - name: Copy main nginx configuration file
   copy:
-    #src: 'nginx/nginx.conf'
+    #src: 'files/nginx/nginx.conf'
     src: '{{ lookup("hf", "nginx/nginx.conf") }}'
     dest: '/etc/nginx/'
     owner: root
@@ -91,12 +91,13 @@
 
 - name: Copy nginx snippet files
   copy:
-    src: 'files/nginx/snippets/{{ item }}'
+    #src: 'files/nginx/snippets/{{ item }}'
+    src: '{{ lookup("hf", "nginx/snippets/" + item) }}'
     dest: '/etc/nginx/snippets/{{ item }}'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
-  with_items: '{{ snippet_files }}'
+  with_items: '{{ nginx_snippet_files }}'
   notify:
     - Reload nginx
   tags:
