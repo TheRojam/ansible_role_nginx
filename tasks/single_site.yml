@@ -1,15 +1,15 @@
 ---
-# TODO: Implement site config template templates
-
-
 - name: Create '{{ site.name }}' site plain http configuration
   template:
-    src:  'files/nginx/sites-available/http_plain_redirect.conf.j2'
+    src: '{{ item }}'
     dest: '/etc/nginx/sites-available/{{ site.name }}_http'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
-  #when: site.http_plain_template | default(True)
+  with_first_found:
+    - files:
+        - 'files/nginx/sites/{{ site.name }}_http.conf'
+        - 'files/nginx/sites-available/vhost_http_redirect.conf.j2'
   notify:
     - Reload nginx
   tags:
@@ -25,7 +25,6 @@
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
-  #when: not site.redirect_target | default(True)
   notify:
     - Reload nginx
   tags:
@@ -34,13 +33,14 @@
     - sites
 
 
-- name: Create '{{ site.name }}' site tls parameter configuration
+- name: Create per site '{{ site.name }}' site configuration snippets
   template:
-    src: 'files/nginx/snippets/tls_parameters.snippet.conf'
-    dest: '/etc/nginx/snippets/tls_parameters_{{ site.name }}.snippet.conf'
+    src: 'files/nginx/snippets/{{ item }}.snippet.conf'
+    dest: '/etc/nginx/snippets/{{ item }}_{{ site.name }}.snippet.conf'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
+  with_items: '{{ nginx__vhost_snippet_files }}'
   notify:
     - Reload nginx
   tags:
@@ -49,51 +49,20 @@
     - sites
 
 
-- name: Create '{{ site.name }}' site tls certificate configuration
+- name: Additional per site '{{ site.name }}' site configuration snippets
   template:
-    src: 'files/nginx/snippets/tls_certificate.snippet.conf'
-    dest: '/etc/nginx/snippets/tls_certificate_{{ site.name }}.snippet.conf'
+    src: '{{ item }}'
+    dest: '/etc/nginx/snippets/'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
+  with_items: "{{ lookup('fileglob', playbook_dir + '/files/nginx/snippets/*_' + site.name + '.snippet.conf', wantlist=True) }}"
   notify:
     - Reload nginx
   tags:
     - configuration
     - nginx
     - sites
-
-
-- name: Create '{{ site.name }}' site logging configuration
-  template:
-    src: 'files/nginx/snippets/logging.snippet.conf'
-    dest: '/etc/nginx/snippets/logging_{{ site.name }}.snippet.conf'
-    owner: root
-    group: root
-    mode: 'u=rw,g=r,o=r'
-  notify:
-    - Reload nginx
-  tags:
-    - configuration
-    - nginx
-    - sites
-
-
-#- name: Copy additional per site '{{ site.name }}' snippet files
-#  template:
-#    src: 'files/nginx/snippets/{{ item }}'
-#    dest: '/etc/nginx/snippets/{{ item }}'
-#    owner: root
-#    group: root
-#    mode: 'u=rw,g=r,o=r'
-#  with_items: '{{ site.snippets }}'
-#  when: site.snippets | default([])
-#  notify:
-#    - Reload nginx
-#  tags:
-#    - configuration
-#    - nginx
-#    - sites
 
 
 - name: Enable '{{ site.name }}' site plain http configuration
@@ -101,7 +70,6 @@
     src: '/etc/nginx/sites-available/{{ site.name }}_http'
     dest: '/etc/nginx/sites-enabled/{{ site.name }}_http'
     state: link
-  when: site.http_plain_template | default(True)
   notify:
     - Reload nginx
   tags:

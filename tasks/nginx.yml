@@ -91,13 +91,13 @@
 
 - name: Copy nginx snippet files
   copy:
-    #src: 'files/nginx/snippets/{{ item }}'
-    src: '{{ lookup("hf", "nginx/snippets/" + item) }}'
-    dest: '/etc/nginx/snippets/{{ item }}'
+    #src: 'files/nginx/snippets/{{ item }}.snippet.conf'
+    src: '{{ lookup("hf", "nginx/snippets/" + item + ".snippet.conf") }}'
+    dest: '/etc/nginx/snippets/{{ item }}.snippet.conf'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
-  with_items: '{{ nginx_snippet_files }}'
+  with_items: '{{ nginx__global_snippet_files }}'
   notify:
     - Reload nginx
   tags:

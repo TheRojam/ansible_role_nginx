@@ -1,12 +1,15 @@
 ---
-
 - name: Create default site plain http configuration
   template:
-    src: 'files/nginx/sites-available/default_http.j2'
+    src: '{{ item }}'
     dest: '/etc/nginx/sites-available/{{ inventory_hostname }}_http'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
+  with_first_found:
+    - files:
+        - 'files/nginx/sites/default_http.conf'
+        - 'files/nginx/sites-available/default_http.conf.j2'
   notify:
     - Reload nginx
   tags:
@@ -17,11 +20,15 @@
 
 - name: Create default site tls https configuration
   template:
-    src: 'files/nginx/sites-available/default_tls.j2'
+    src: '{{ item }}'
     dest: '/etc/nginx/sites-available/{{ inventory_hostname }}_tls'
     owner: root
     group: root
     mode: 'u=rw,g=r,o=r'
+  with_first_found:
+    - files:
+        - 'files/nginx/sites/default_tls.conf'
+        - 'files/nginx/sites-available/default_tls.conf.j2'
   notify:
     - Reload nginx
   tags:

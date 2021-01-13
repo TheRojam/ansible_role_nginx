@@ -3,14 +3,29 @@ nginx__packages:
   - 'nginx'
 
 
+# Length of DH parameters
 nginx__dhparam_size: 2048
 
 
+# List of global snippets, independent of specific vhost configuration.
+nginx__global_snippet_files:
+  - 'acmetool' #.snippet.conf
+  - 'header_csp_static' #.snippet.conf
+  - 'header_hsts' #.snippet.conf
+  - 'tls_parameters' #.snippet.conf
+
+# List of snippets common to all vhost, dependent of specific vhost configuration.
+nginx__vhost_snippet_files:
+  - 'certificate' #.snippet.conf
+  - 'logging' #.snippet.conf
+
+
+# Configuration of virtual hosts
 nginx_sites: {}
 
 #nginx_sites:
 #  - name: 'example.org'
-#    altnames:
+#    altnames:                              Optional, for acmetool
 #      - 'www.example.org'
 #      - 'ftp.example.org'
 #    robots: 'robots_allow_all.txt'         Optional, unimplemented
@@ -20,12 +35,3 @@ nginx_sites: {}
 #       user                                Optional, for use with 'webhost' role
 #       group                               Optional, for use with 'webhost' role
 #       mode                                Optional, for use with 'webhost' role
-
-
-# List of global snippets, independent of the vhost host name
-nginx_snippet_files:
-  - 'acmetool.snippet.conf'
-  - 'tls_parameters.snippet.conf'
-
-
-#default_robots_file: 'robots_disallow_all.txt'
